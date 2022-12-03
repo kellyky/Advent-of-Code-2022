@@ -11,40 +11,39 @@ module Priorities
     end
     priorities
   end
-
 end
 
-class RucksackReorganization
+class Rucksack
   include Priorities
 
   def initialize(rucksacks)
     @rucksacks = rucksacks
   end
 
-  def get_priorities
-    divide_into_compartments.flatten.reduce(0) do |total, priority|
+  def calculate_priority
+    common_letter.flatten.reduce(0) do |total, priority|
       total += priorities[priority]
     end
   end
 
-  def divide_into_compartments
-    @rucksacks.map.with_index do |sack, i|
-      left, right = compartments(sack)
+  def common_letter
+    groups_of_three(@rucksacks).map do |pack|
+      first, mid, last = pack
+      @chars_to_check = first.chars.sort.uniq
 
-      @left_letters = left.chars.sort.uniq
-
-      @left_letters.filter do |left|
-        right.include?(left)
+      @chars_to_check.filter do |checked_char|
+        mid.include?(checked_char) && last.include?(checked_char)
       end
     end
   end
 
-  def compartments(arr)
-    mid = arr.length / 2
-    [arr.slice(0...mid), arr.slice(mid..-1)]
+
+  def groups_of_three(arr)
+    arr.each_slice(3).to_a
   end
 
 end
 
-backpack = RucksackReorganization.new(rucksacks)
-puts backpack.get_priorities
+backpack = Rucksack.new(rucksacks)
+# puts backpack.common_letter
+puts backpack.calculate_priority
