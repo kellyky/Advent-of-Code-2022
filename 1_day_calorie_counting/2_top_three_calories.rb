@@ -28,7 +28,7 @@ groups.each.with_index do |group, i|
 end
 
 def get_max_cal_count(hash)
-  hash.values.max
+  hash.values.max(3).sum
 end
 
 puts get_max_cal_count(elves)
