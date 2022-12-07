@@ -1,6 +1,4 @@
-# signal = "bvwbjplbgvbhsrlpgdmjqwftvncz"
 signal = File.read("input.txt")
-# puts signal
 
 signal.chars.each.with_index do |ch, i|
   group = signal.slice(i, 14)
