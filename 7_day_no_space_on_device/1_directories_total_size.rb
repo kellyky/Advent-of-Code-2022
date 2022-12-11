@@ -20,6 +20,23 @@ class DeviceMemory
     end
   end
 
+  def add_files_to_tree # update to take current dir as arg... maybe
+    tree = {}
+    current_dir = ["/"]
+    tree["/"] = {}
+    ls_results.each.with_index do |listing, i|
+      files = listing.select{ |r| r.match(/[0-9]/)}
+      files.each do |f|
+        file_name, file_size = f.split.reverse
+        file_name
+        file_size.to_i
+        tree[current_dir.last][file_name] = file_size.to_i
+      end
+    end
+
+    tree
+  end
+
   def file_tree
     tree = {}
     
@@ -47,36 +64,8 @@ class DeviceMemory
         cd_to = listing.last.split.last
         # attempt to change directory
 
-
-        # unless listing.last.split.last == "."
-        #   current_dir = listing.last.split.last
-
-        # else
-        #   # handle going up a directory
-        #   current_dir.pop
-        #   next
-        # end
-
       end
-
-
-
     end
-
-
-    # tree[current_dir.last] = directories_listed
-    
-    # dirs_directed = cd_directions.map do |d|
-    #   pointer = current_dir.last
-    #   if d == "."
-    #     current_dir.pop
-    #     next
-    #   else
-    #     tree[pointer] = directories_listed
-    #     current_dir.push(d)
-    #   end
-    # end 
-
 
     tree
   end
@@ -91,4 +80,4 @@ end
   
 
 drive = DeviceMemory.new(lines_of_code)
-puts drive.file_tree
+puts drive.add_files_to_tree
