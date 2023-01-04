@@ -7,6 +7,7 @@ class DeviceMemory2
     @lines = File.readlines('sample_input.txt', chomp: true) 
     @directory_history = [:/]
     @file_tree = { "/": { file_sum: 0 } }
+    # @file_tree = { }
     # build_file_tree
   end
 
@@ -16,10 +17,13 @@ class DeviceMemory2
 
   def build_file_tree
     ls_chonks.each do |chonk|
-      puts chonk.to_s
+      # puts chonk.to_s 
       parse_chonk(chonk)
+      # puts @file_tree
+      # puts "---"
     end
 
+    puts "---"
     puts @file_tree
     # update_file_sums
   end
@@ -29,39 +33,46 @@ class DeviceMemory2
   end
   
   def parse_chonk(chonk)
+    current_dir = @directory_history.last   # current dir for chonk
+    chonk_file_sum = 0                      # sum of chonk's files
+    chonk_folders = []                      # list of chonk's folders. needed?
+
+
     chonk.map do |line|
       fork_in_the_road, _ = line.split(" ")
-      file_sum = 0
-      current_dir = @directory_history.last
 
-      case fork_in_the_road
-      when "dir"
-        # add_directories_to_tree(line)        
+      listed_dir = fork_in_the_road == "dir"
+      change_dir = fork_in_the_road == "$"
+      file = !(change_dir || listed_dir )
 
-
-
-
-        # dir_name(line) 
-      when "$"
-        contents = {}
-        @file_tree[current_dir] = dir_name(line) => contents
-        change_directory(line)
-      else  
-        @file_tree[current_dir] = {file_name(line) => file_size(line)}
-        
+      case
+      when file                             # get size each file; add to chonk sum
+        chonk_file_sum += file_size(line)
+      when listed_dir                       # get list of directory (as contents); add to chonk folders
+        chonk_folders << dir_name(line)
+      when change_dir                       # set directory for the next chonk 
+        change_directory(line)    
       end
     end
+
+    add_directories_to_tree(chonk_folders, current_dir)
+    add_files_to_tree(chonk_file_sum, current_dir)
+  end
+
+  def add_files_to_tree(sum, current_dir)
+    chonker_sum = { file_sum: sum }
+
+    @file_tree[current_dir] = chonker_sum
   end
 
 
-  def add_directories_to_tree(line)
-    _, dir_name = line.split(" ")
-    folder = { dir_name.to_sym =>  { file_sum: 0 } }
-    current_dir = @directory_history.last
+  def add_directories_to_tree(folders, current_dir)
+    # puts folders.to_s unless folders == []
 
-    @file_tree[current_dir] = folder 
-    
-    # @file_tree.merge!(folder)
+    folders.each do |f|
+      folder = { f.to_sym => {} }
+      @file_tree[current_dir]= folder 
+    end
   end
 
   def dir_name(dir)
@@ -79,20 +90,6 @@ class DeviceMemory2
     file_size.to_i
   end
 
-  # def add_files_to_tree(file)
-  #   # if dir: add new hash to the tree
-  #   # if file: add new file total to the tree at cur directory location
-  #   file_size, file_name = file.split(" ")
-
-  #   current_dir = @directory_history.last
-
-  #   @file_tree[current_dir][file_name.to_sym] = file_size.to_s
-
-  #   # @file_tree[current_dir] = { file_name.to_sym => file_size.to_i }
-  #   # @file_tree[current_dir][file_sum:] += file_size
-  #   # access current directory & add sum to value
-  # end
-
   def change_directory(dir_changes)
       *_, directory = dir_changes.split(" ")
 
@@ -101,7 +98,6 @@ class DeviceMemory2
       else
         @directory_history.push(directory.to_sym)
       end
-
       @directory_history.last
   end
 
@@ -118,10 +114,6 @@ class DeviceMemory2
     end.compact
   end
 end
-
-# drive = DeviceMemory.new(lines_of_code)
-# puts drive.ls_chonk.to_s
-# puts drive.change_directory(["584 i", "$ cd ..", "$ cd ..", "$ cd d"])
 
 drive = DeviceMemory2.new
 # puts drive.change_directory(["584 i", "$ cd ..", "$ cd ..", "$ cd d"])
