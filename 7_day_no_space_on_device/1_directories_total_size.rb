@@ -6,13 +6,37 @@ class DeviceMemory2
   def initialize
     @lines = File.readlines('sample_input.txt', chomp: true) 
     @directory_history = [:/]
-    @file_tree = { "/": { file_sum: 0 } }
-    # @file_tree = { }
+    # @file_tree = { "/": { file_sum: 0 } }
+
+    # PLACEHOLDER - working on the sums segment
+    @file_tree = {:/ => {:a => { :e => {:file_sum => 584 }, :file_sum => 94269 }, :d => {:file_sum => 24933642}, :file_sum => 23352670}}
+    
+    @sums = file_tree_sums(@file_tree, 0)
     # build_file_tree
   end
 
-  def find_valid_dirs(max_size)
+  # def find_valid_dirs(max_size)
+  # end
 
+  def sums
+    @sums.flatten.compact.sum
+  end
+
+  def file_tree_sums(hash, sums)
+    hash.map do |k, v|
+      if v.is_a? Hash
+        file_tree_sums(v, sums)
+      else
+        if v < 100000
+          sums += v
+          sums
+        end
+      end
+    end
+  end
+
+  def file_tree
+    @file_tree
   end
 
   def build_file_tree
@@ -67,7 +91,11 @@ class DeviceMemory2
 
 
   def add_directories_to_tree(folders, current_dir)
-    # puts folders.to_s unless folders == []
+
+    puts "file tree: " + @file_tree.to_s
+    puts "current_dir: " + current_dir.to_s
+    puts "dir_hist: " + @directory_history.to_s
+    puts "--"
 
     folders.each do |f|
       folder = { f.to_sym => {} }
@@ -118,4 +146,6 @@ end
 drive = DeviceMemory2.new
 # puts drive.change_directory(["584 i", "$ cd ..", "$ cd ..", "$ cd d"])
 # drive.parse_chonk(["dir a", "14848514 b.txt", "8504156 c.dat", "dir d", "$ cd a"])
-drive.build_file_tree
+# drive.build_file_tree
+puts drive.file_tree
+puts drive.sums
