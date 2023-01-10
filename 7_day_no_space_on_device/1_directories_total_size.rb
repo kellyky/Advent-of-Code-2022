@@ -2,8 +2,8 @@ require 'pry-byebug'
   
 class DeviceMemory2
   def initialize
-    # @lines = File.readlines('sample_input.txt', chomp: true) 
-    @lines = File.readlines('input.txt', chomp: true) 
+    @lines = File.readlines('sample_input.txt', chomp: true) 
+    # @lines = File.readlines('input.txt', chomp: true) 
     @directory_history = [:/]
     @file_tree = { "/": { file_sum: 0 } }
 
@@ -17,12 +17,9 @@ class DeviceMemory2
   def file_tree_sums(hash, sums)
     hash.map do |k, v|
       if v.is_a? Hash
-        # puts "k: #{k}; v: #{v}"
         file_tree_sums(v, @sums)
       else
-        # puts "hash: #{hash}; sums: #{sums}"
         if v < 100000
-          puts "v: #{v}"
           @sums += v
         end
       end
@@ -35,11 +32,6 @@ class DeviceMemory2
 
   def build_file_tree
     ls_chonks.each do |chonk|
-    puts "\n\n"
-    puts "-----------"
-      puts "file_tree: #{file_tree}\n"
-      puts " chonk: #{chonk}"
-      puts @directory_history
       parse_chonk(chonk)
     end
 
@@ -76,12 +68,9 @@ class DeviceMemory2
 
     add_folders_to_tree(chonk_folders, current_dir, dir_path)
     add_files_to_tree(chonk_file_sum, current_dir, dir_path)
-
-    # update_tree(chonk_folders, chonk_file_sum, current_dir, dir_path)
   end
 
   def add_folders_to_tree(dirs, current_dir, dir_path)
-    # binding.pry
     last_dir, second_last_dir = dir_path.last(2).reverse
 
     # folders
@@ -98,13 +87,12 @@ class DeviceMemory2
   end
 
   def add_files_to_tree(file_size, current_dir, dir_path)
-    # binding.pry
     last_dir, second_last_dir = dir_path.last(2).reverse
 
     file = { file_sum: file_size }
 
     # files
-    if @file_tree.member?(second_last_dir)
+    if @file_tree.member?(second_last_dir) 
       # @file_tree[second_last_dir][last_dir][current_dir].merge!(file)
       @file_tree[second_last_dir][last_dir][current_dir][:file_sum] = file_size
     elsif @file_tree.member?(last_dir)
@@ -116,44 +104,6 @@ class DeviceMemory2
     end
 
   end
-
-  # def update_tree(dirs, file_size, current_dir, dir_path)
-  #   # binding.pry
-  #   last_dir, second_last_dir = dir_path.last(2).reverse
-
-  #   file = { file_sum: file_size }
-
-  #   puts "\n\n"
-  #   puts "second_last_dir: #{second_last_dir}, last_dir: #{last_dir}, current_dir: #{current_dir}, sum: #{file_size}"
-    
-  #   # folders
-  #   dirs.each do |d|
-  #     folder = { d.to_sym => { :file_sum => 0 }}
-  #     if @file_tree.member?(second_last_dir)
-  #       @file_tree[second_last_dir][last_dir][current_dir] = folder
-  #       # @file_tree[second_last_dir][last_dir][current_dir].merge!(file)
-  #       @file_tree[second_last_dir][last_dir][current_dir][:file_sum] = file_size
-  #     elsif @file_tree.member?(last_dir)
-  #       @file_tree[last_dir][current_dir] = folder
-  #       # @file_tree[last_dir][current_dir].merge!(file)
-  #       @file_tree[last_dir][current_dir][:file_sum] = file_size
-  #     else
-  #       @file_tree[current_dir] = folder
-  #       # @file_tree[current_dir].merge!(file)
-  #       @file_tree[current_dir][:file_sum] = file_size
-  #     end
-  #   end
-
-
-  #   # files
-  #   # if @file_tree.member?(second_last_dir)
-  #   #   @file_tree[second_last_dir][last_dir][current_dir].merge!(file)
-  #   # elsif @file_tree.member?(last_dir)
-  #   #   @file_tree[last_dir][current_dir].merge!(file)
-  #   # else
-  #   #   @file_tree[current_dir].merge!(file)
-  #   # end
-  # end
   
 
   def dir_name(dir)
